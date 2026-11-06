@@ -560,7 +560,9 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error al verificar alertas al inicio: " + ex.Message);
+                ManejadorErroresUI.ObtenerReferencia(
+                    ex,
+                    "verificar alertas al iniciar la sesión");
             }
         }
 

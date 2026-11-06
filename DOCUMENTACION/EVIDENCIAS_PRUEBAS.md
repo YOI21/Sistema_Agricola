@@ -14,7 +14,7 @@
 | Evidencia | Comando o procedimiento | Resultado del corte |
 |---|---|---|
 | Compilación completa | `dotnet build Sistema_Agricola.sln --configuration Release --no-restore` | Aprobada: 0 errores y 0 advertencias |
-| Pruebas aptas para CI | Filtro sin `Integracion`, `AdministracionBD` ni `Restauracion` | Aprobadas: 236 pruebas, 0 fallidas y 0 omitidas |
+| Pruebas aptas para CI | Filtro sin `Integracion`, `AdministracionBD` ni `Restauracion` | Aprobadas: 242 pruebas, 0 fallidas y 0 omitidas |
 | Integración SQL restringida | Variable `SISTEMA_AGRICOLA_RUN_DB_TESTS=1` y filtro `Categoria=Integracion` | Aprobadas: 4 pruebas de esquema, permisos, duplicados y reversión |
 | Restauración real | Filtro `Categoria=Restauracion` con `.bak` temporal | Aprobada: 1 prueba con versión 12 y `DBCC CHECKDB` |
 | Escalado visual | `FormulariosSmokeTests` | Aprobado a 125 % y 150 %, sin formularios vacíos ni texto de botones cortado |

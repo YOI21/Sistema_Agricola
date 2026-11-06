@@ -54,9 +54,7 @@ namespace Sistema_Agricola.UI
                         DataView dv = dtCultivosActivos.DefaultView;
                         string dateFormat = DateTime.Now.ToString("yyyy-MM-dd");
 
-                        // Mostrar la consulta de filtro para depuración
                         string filterQuery = $"Convert([{nombreColumnaFechaCosecha}], 'System.DateTime') > #{dateFormat}#";
-                        Console.WriteLine("Filter Query: " + filterQuery);
 
                         // Aplicar el filtro
                         dv.RowFilter = filterQuery;
@@ -71,11 +69,9 @@ namespace Sistema_Agricola.UI
                     }
                     catch (Exception filterEx)
                     {
-                        // Si falla el filtrado, mostramos todos los cultivos
-                        MessageBox.Show("Error al filtrar: " + filterEx.Message,
-                            "Error de filtro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                        // Usar todos los cultivos
+                        ManejadorErroresUI.ObtenerReferencia(
+                            filterEx,
+                            "filtrar cultivos activos del dashboard");
                         lblCultivosActivosValor.Text = dtCultivosActivos.Rows.Count.ToString();
                     }
                 }
@@ -86,9 +82,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error en CargarCultivosActivos: " + ex.Message +
-                    "\n\nStackTrace: " + ex.StackTrace,
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "cargar los cultivos activos");
             }
         }
 
@@ -144,9 +138,6 @@ namespace Sistema_Agricola.UI
 
                     if (string.IsNullOrEmpty(nombreColumnaFechaCosecha))
                     {
-                        // Si no encontramos la columna, mostrar un mensaje de depuración y crear una
-                        Console.WriteLine("No se pudo encontrar la columna de fecha de cosecha.");
-
                         // Creamos una copia del DataTable original
                         DataTable dtTemp = dtCultivosActivos.Copy();
 
@@ -202,9 +193,9 @@ namespace Sistema_Agricola.UI
                     }
                     catch (Exception filterEx)
                     {
-                        Console.WriteLine("Error al filtrar próximas cosechas: " + filterEx.Message);
-
-                        // Usar todos los cultivos como alternativa
+                        ManejadorErroresUI.ObtenerReferencia(
+                            filterEx,
+                            "filtrar próximas cosechas del dashboard");
                         dgvProximasCosechas.DataSource = dtCultivosActivos;
                         FormatearGrid(dgvProximasCosechas);
                         lblProximasCosechasValor.Text = dtCultivosActivos.Rows.Count.ToString();
@@ -218,13 +209,13 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error en CargarProximasCosechas: " + ex.Message);
-                lblProximasCosechasValor.Text = "0";
-
-                // Crear una tabla vacía con mensaje de error
+                string mensaje = ManejadorErroresUI.ObtenerMensajeSeguro(
+                    ex,
+                    "cargar próximas cosechas del dashboard");
+                lblProximasCosechasValor.Text = "--";
                 DataTable dtError = new DataTable();
                 dtError.Columns.Add("Mensaje", typeof(string));
-                dtError.Rows.Add("No hay próximas cosechas disponibles");
+                dtError.Rows.Add(mensaje);
                 dgvProximasCosechas.DataSource = dtError;
             }
         }
@@ -233,146 +224,30 @@ namespace Sistema_Agricola.UI
         {
             try
             {
-                // Intentar obtener el ID del primer cultivo disponible
-                int cultivo = -1; // Valor por defecto
+                dtSeguimientos = BLL_Dashboard.ObtenerUltimosSeguimientos(-1, 10);
 
-                // Intentar usar el DataTable de cultivos activos si existe
-                if (dtCultivosActivos != null && dtCultivosActivos.Rows.Count > 0)
+                if (dtSeguimientos.Rows.Count > 0)
                 {
-                    // Buscar alguna columna que pueda contener el ID del cultivo
-                    string? columnaId = null;
-
-                    // Primero buscar columnas específicas que suelen contener IDs
-                    string[] posiblesNombres = {
-                "ID_Cultivo", "Id_Cultivo", "IdCultivo", "ID Cultivo", "ID", "Id"
-            };
-
-                    foreach (string nombre in posiblesNombres)
-                    {
-                        if (dtCultivosActivos.Columns.Contains(nombre))
-                        {
-                            columnaId = nombre;
-                            break;
-                        }
-                    }
-
-                    // Si no encontramos ninguna de las anteriores, buscar la primera columna con "ID" o "Id"
-                    if (columnaId == null)
-                    {
-                        foreach (DataColumn col in dtCultivosActivos.Columns)
-                        {
-                            if (col.ColumnName.ToLower().Contains("id"))
-                            {
-                                columnaId = col.ColumnName;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (columnaId != null && dtCultivosActivos.Rows.Count > 0)
-                    {
-                        try
-                        {
-                            // Intentar convertir el valor a entero
-                            cultivo = Convert.ToInt32(dtCultivosActivos.Rows[0][columnaId]);
-                        }
-                        catch
-                        {
-                            // Si falla, usar valor por defecto
-                            cultivo = 1;
-                        }
-                    }
+                    dgvUltimosSeguimientos.DataSource = dtSeguimientos;
+                    FormatearGrid(dgvUltimosSeguimientos);
                 }
-
-                // Si no pudimos obtener un ID válido, usar valor por defecto
-                if (cultivo <= 0)
+                else
                 {
-                    cultivo = 1; // ID por defecto
-                }
-
-                // Ahora intentamos obtener el seguimiento de ese cultivo
-                try
-                {
-                    dtSeguimientos =
-                        BLL_SeguimientoCrecimiento.Mostrar_SeguimientoCrecimiento(cultivo) ??
-                        new DataTable();
-
-                    if (dtSeguimientos != null && dtSeguimientos.Rows.Count > 0)
-                    {
-                        // Ordenar por fecha más reciente
-                        DataView dv = dtSeguimientos.DefaultView;
-
-                        // Buscar la columna de fecha para ordenar
-                        string? columnaFecha = null;
-                        foreach (DataColumn col in dtSeguimientos.Columns)
-                        {
-                            if (col.DataType == typeof(DateTime) ||
-                                col.ColumnName.ToLower().Contains("fecha"))
-                            {
-                                columnaFecha = col.ColumnName;
-                                break;
-                            }
-                        }
-
-                        if (columnaFecha != null)
-                        {
-                            dv.Sort = $"{columnaFecha} DESC";
-                        }
-                        else
-                        {
-                            // Si no hay columna de fecha, intentar con ID o la primera columna
-                            if (dtSeguimientos.Columns.Contains("ID_Seguimiento"))
-                            {
-                                dv.Sort = "ID_Seguimiento DESC";
-                            }
-                            else if (dtSeguimientos.Columns.Count > 0)
-                            {
-                                dv.Sort = dtSeguimientos.Columns[0].ColumnName + " DESC";
-                            }
-                        }
-
-                        DataTable dtOrdenado = dv.ToTable();
-
-                        // Limitar a los 10 primeros registros
-                        DataTable dtLimitado = dtOrdenado.Clone();
-                        for (int i = 0; i < Math.Min(10, dtOrdenado.Rows.Count); i++)
-                        {
-                            dtLimitado.ImportRow(dtOrdenado.Rows[i]);
-                        }
-
-                        dgvUltimosSeguimientos.DataSource = dtLimitado;
-                        FormatearGrid(dgvUltimosSeguimientos);
-                    }
-                    else
-                    {
-                        // Crear una tabla vacía con mensaje informativo
-                        DataTable dtVacio = new DataTable();
-                        dtVacio.Columns.Add("Mensaje", typeof(string));
-                        dtVacio.Rows.Add("No hay seguimientos disponibles");
-                        dgvUltimosSeguimientos.DataSource = dtVacio;
-                        FormatearGrid(dgvUltimosSeguimientos);
-                    }
-                }
-                catch (Exception methodEx)
-                {
-                    Console.WriteLine("Error al llamar a Mostrar_SeguimientoCrecimiento: " + methodEx.Message);
-
-                    // Crear tabla con mensaje de error
-                    DataTable dtError = new DataTable();
-                    dtError.Columns.Add("Error", typeof(string));
-                    dtError.Rows.Add("Error al cargar seguimientos: " + methodEx.Message);
-                    dgvUltimosSeguimientos.DataSource = dtError;
+                    DataTable dtVacio = new DataTable();
+                    dtVacio.Columns.Add("Mensaje", typeof(string));
+                    dtVacio.Rows.Add("No hay seguimientos disponibles");
+                    dgvUltimosSeguimientos.DataSource = dtVacio;
                     FormatearGrid(dgvUltimosSeguimientos);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error general en CargarSeguimientos: " + ex.Message);
-
-                // Crear tabla con mensaje de error
+                string mensaje = ManejadorErroresUI.ObtenerMensajeSeguro(
+                    ex,
+                    "cargar seguimientos del dashboard");
                 DataTable dtError = new DataTable();
-                dtError.Columns.Add("Error", typeof(string));
-                dtError.Rows.Add("Error al cargar seguimientos: " + ex.Message);
+                dtError.Columns.Add("Mensaje", typeof(string));
+                dtError.Rows.Add(mensaje);
                 dgvUltimosSeguimientos.DataSource = dtError;
                 FormatearGrid(dgvUltimosSeguimientos);
             }
@@ -382,49 +257,35 @@ namespace Sistema_Agricola.UI
         {
             try
             {
-                // Cargar alertas pendientes - usar try/catch por si falla el método
-                try
+                dtAlertas = BLL_Alertas.ObtenerAlertasProximas() ?? new DataTable();
+
+                if (dtAlertas.Rows.Count > 0)
                 {
-                    dtAlertas = BLL_Alertas.ObtenerAlertasProximas() ?? new DataTable();
-
-                    if (dtAlertas != null && dtAlertas.Rows.Count > 0)
-                    {
-                        // Mostrar en el grid
-                        dgvAlertas.DataSource = dtAlertas;
-                        FormatearGrid(dgvAlertas);
-
-                        // Actualizar contador
-                        lblAlertasValor.Text = dtAlertas.Rows.Count.ToString();
-                    }
-                    else
-                    {
-                        lblAlertasValor.Text = "0";
-
-                        // Crear tabla vacía con mensaje
-                        DataTable dtVacio = new DataTable();
-                        dtVacio.Columns.Add("Mensaje", typeof(string));
-                        dtVacio.Rows.Add("No hay alertas pendientes");
-                        dgvAlertas.DataSource = dtVacio;
-                        FormatearGrid(dgvAlertas);
-                    }
+                    dgvAlertas.DataSource = dtAlertas;
+                    FormatearGrid(dgvAlertas);
+                    lblAlertasValor.Text = dtAlertas.Rows.Count.ToString();
                 }
-                catch (Exception methodEx)
+                else
                 {
-                    Console.WriteLine("Error al llamar a ObtenerAlertasProximas: " + methodEx.Message);
                     lblAlertasValor.Text = "0";
-
-                    // Crear tabla vacía con mensaje de error
-                    DataTable dtError = new DataTable();
-                    dtError.Columns.Add("Error", typeof(string));
-                    dtError.Rows.Add("Error al cargar alertas: " + methodEx.Message);
-                    dgvAlertas.DataSource = dtError;
+                    DataTable dtVacio = new DataTable();
+                    dtVacio.Columns.Add("Mensaje", typeof(string));
+                    dtVacio.Rows.Add("No hay alertas pendientes");
+                    dgvAlertas.DataSource = dtVacio;
                     FormatearGrid(dgvAlertas);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error general en CargarAlertas: " + ex.Message);
-                lblAlertasValor.Text = "0";
+                string mensaje = ManejadorErroresUI.ObtenerMensajeSeguro(
+                    ex,
+                    "cargar alertas del dashboard");
+                lblAlertasValor.Text = "--";
+                DataTable dtError = new DataTable();
+                dtError.Columns.Add("Mensaje", typeof(string));
+                dtError.Rows.Add(mensaje);
+                dgvAlertas.DataSource = dtError;
+                FormatearGrid(dgvAlertas);
             }
         }
 
@@ -497,13 +358,17 @@ namespace Sistema_Agricola.UI
                 }
                 catch (Exception cosechasEx)
                 {
-                    Console.WriteLine("Error al cargar cosechas: " + cosechasEx.Message);
+                    ManejadorErroresUI.ObtenerReferencia(
+                        cosechasEx,
+                        "cargar cosechas para estadísticas del dashboard");
                     dtCosechas = new DataTable();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error al calcular estadísticas: " + ex.Message);
+                ManejadorErroresUI.ObtenerReferencia(
+                    ex,
+                    "calcular estadísticas del dashboard");
             }
         }
 

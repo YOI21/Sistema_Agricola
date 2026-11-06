@@ -25,4 +25,20 @@ public sealed class DependenciasUiTests
             throwOnError: false,
             ignoreCase: false));
     }
+
+    [Fact]
+    public void ManejadorErrores_NoExponeDetalleTecnicoAlUsuario()
+    {
+        const string detalleSensible =
+            "Password=secreto; servidor interno no disponible";
+        InvalidOperationException excepcion = new(detalleSensible);
+
+        string mensaje = ManejadorErroresUI.ObtenerMensajeSeguro(
+            excepcion,
+            "prueba de mensaje seguro");
+
+        Assert.Contains("Codigo de seguimiento", mensaje);
+        Assert.DoesNotContain(detalleSensible, mensaje);
+        Assert.DoesNotContain("Password", mensaje, StringComparison.OrdinalIgnoreCase);
+    }
 }

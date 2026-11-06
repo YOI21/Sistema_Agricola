@@ -43,8 +43,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al inicializar el formulario: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "inicializar las alertas");
             }
         }
 
@@ -79,8 +78,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar la alerta: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "guardar la alerta");
             }
             LimpiarFormulario();
             RecargarListasAlertas();
@@ -124,8 +122,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al actualizar la alerta: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "actualizar la alerta");
             }
         }
 
@@ -164,8 +161,7 @@ namespace Sistema_Agricola.UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al eliminar la alerta: {ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ManejadorErroresUI.Mostrar(this, ex, "eliminar la alerta");
                 }
             }
         }
@@ -272,7 +268,8 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                throw new Exception("Error al cargar cultivos: " + ex.Message);
+                ManejadorErroresUI.ObtenerReferencia(ex, "cargar cultivos para alertas");
+                throw;
             }
         }
 
@@ -294,8 +291,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar alertas: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "cargar las alertas");
             }
         }
 
@@ -308,8 +304,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar alertas pendientes: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "cargar las alertas pendientes");
             }
         }
 
@@ -322,8 +317,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar alertas próximas: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "cargar las alertas próximas");
             }
         }
 
@@ -675,8 +669,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar los datos de la alerta: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "cargar los datos de la alerta");
             }
         }
 
@@ -762,8 +755,13 @@ namespace Sistema_Agricola.UI
             {
                 if (mostrarMensaje)
                 {
-                    MessageBox.Show($"Error al verificar alertas: {ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ManejadorErroresUI.Mostrar(this, ex, "verificar las alertas próximas");
+                }
+                else
+                {
+                    ManejadorErroresUI.ObtenerReferencia(
+                        ex,
+                        "verificar alertas próximas en segundo plano");
                 }
             }
         }
@@ -827,7 +825,9 @@ namespace Sistema_Agricola.UI
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"Error al generar alertas para cultivo ID {id}: {ex.Message}");
+                                ManejadorErroresUI.ObtenerReferencia(
+                                    ex,
+                                    $"generar alertas automáticas para el cultivo {id}");
                             }
                         }
                     }
@@ -866,8 +866,7 @@ namespace Sistema_Agricola.UI
             catch (Exception ex)
             {
                 Cursor.Current = Cursors.Default;
-                MessageBox.Show($"Error al generar alertas automáticas: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "generar las alertas automáticas");
             }
         }
 

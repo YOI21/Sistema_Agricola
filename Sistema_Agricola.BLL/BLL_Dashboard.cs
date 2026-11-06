@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Sistema_Agricola.Common;
 using Sistema_Agricola.Entities;
 
 namespace Sistema_Agricola.BLL
@@ -92,8 +93,8 @@ namespace Sistema_Agricola.BLL
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error al obtener estadísticas: " + ex.Message);
-                // En una versión más robusta, se manejaría el error de mejor manera
+                RegistroErrores.Registrar(ex, "BLL_Dashboard.ObtenerEstadisticas");
+                throw;
             }
 
             return dashboard;
@@ -107,50 +108,107 @@ namespace Sistema_Agricola.BLL
         /// <returns>Tabla con los datos de seguimiento</returns>
         public static DataTable ObtenerUltimosSeguimientos(int idCultivo = -1, int limite = 10)
         {
-            try
+            return ObtenerUltimosSeguimientos(
+                idCultivo,
+                limite,
+                BLL_SeguimientoCrecimiento.Mostrar_SeguimientoCrecimiento,
+                BLL_Siembra.Mostrar_Cultivos);
+        }
+
+        internal static DataTable ObtenerUltimosSeguimientos(
+            int idCultivo,
+            int limite,
+            Func<int, DataTable> cargarSeguimientos,
+            Func<DataTable> cargarCultivos)
+        {
+            ArgumentNullException.ThrowIfNull(cargarSeguimientos);
+            ArgumentNullException.ThrowIfNull(cargarCultivos);
+
+            if (limite <= 0)
             {
-                DataTable dtSeguimientos;
-
-                if (idCultivo > 0)
-                {
-                    // Obtener seguimientos de un cultivo específico
-                    dtSeguimientos = BLL_SeguimientoCrecimiento.Mostrar_SeguimientoCrecimiento(idCultivo);
-                }
-                else
-                {
-                    // En una implementación completa, aquí se obtendría los seguimientos de todos los cultivos
-                    // Como ejemplo, usaremos el ID 1 si existe
-                    dtSeguimientos = BLL_SeguimientoCrecimiento.Mostrar_SeguimientoCrecimiento(1);
-                }
-
-                if (dtSeguimientos != null && dtSeguimientos.Rows.Count > 0)
-                {
-                    // Ordenar por fecha más reciente
-                    DataView dv = dtSeguimientos.DefaultView;
-                    dv.Sort = "Fecha_Registro DESC";
-                    DataTable dtOrdenado = dv.ToTable();
-
-                    // Limitar la cantidad de registros
-                    if (dtOrdenado.Rows.Count > limite)
-                    {
-                        DataTable dtLimitado = dtOrdenado.Clone();
-                        for (int i = 0; i < limite && i < dtOrdenado.Rows.Count; i++)
-                        {
-                            dtLimitado.ImportRow(dtOrdenado.Rows[i]);
-                        }
-                        return dtLimitado;
-                    }
-
-                    return dtOrdenado;
-                }
-
-                return new DataTable(); // Devolver tabla vacía si no hay datos
+                throw new ArgumentOutOfRangeException(
+                    nameof(limite),
+                    "El límite debe ser mayor que cero.");
             }
-            catch (Exception ex)
+
+            DataTable seguimientos = idCultivo > 0
+                ? cargarSeguimientos(idCultivo)
+                : CargarSeguimientosDeTodosLosCultivos(
+                    cargarCultivos(),
+                    cargarSeguimientos);
+
+            return OrdenarYLimitarSeguimientos(seguimientos, limite);
+        }
+
+        private static DataTable CargarSeguimientosDeTodosLosCultivos(
+            DataTable cultivos,
+            Func<int, DataTable> cargarSeguimientos)
+        {
+            if (cultivos == null || !cultivos.Columns.Contains("ID_Cultivo"))
             {
-                Console.WriteLine("Error al obtener seguimientos: " + ex.Message);
                 return new DataTable();
             }
+
+            DataTable acumulado = new DataTable();
+            IEnumerable<int> idsCultivos = cultivos.AsEnumerable()
+                .Where(fila => fila["ID_Cultivo"] != DBNull.Value)
+                .Select(fila => Convert.ToInt32(fila["ID_Cultivo"]))
+                .Where(id => id > 0)
+                .Distinct();
+
+            foreach (int id in idsCultivos)
+            {
+                DataTable datosCultivo = cargarSeguimientos(id);
+                if (datosCultivo == null || datosCultivo.Columns.Count == 0)
+                {
+                    continue;
+                }
+
+                if (acumulado.Columns.Count == 0)
+                {
+                    acumulado = datosCultivo.Clone();
+                }
+
+                foreach (DataRow fila in datosCultivo.Rows)
+                {
+                    acumulado.ImportRow(fila);
+                }
+            }
+
+            return acumulado;
+        }
+
+        private static DataTable OrdenarYLimitarSeguimientos(
+            DataTable seguimientos,
+            int limite)
+        {
+            if (seguimientos == null || seguimientos.Rows.Count == 0)
+            {
+                return seguimientos?.Clone() ?? new DataTable();
+            }
+
+            if (!seguimientos.Columns.Contains("Fecha_Registro"))
+            {
+                throw new InvalidOperationException(
+                    "Los seguimientos no incluyen la columna Fecha_Registro.");
+            }
+
+            DataView vista = seguimientos.DefaultView;
+            vista.Sort = "Fecha_Registro DESC";
+            DataTable ordenados = vista.ToTable();
+
+            if (ordenados.Rows.Count <= limite)
+            {
+                return ordenados;
+            }
+
+            DataTable limitados = ordenados.Clone();
+            for (int indice = 0; indice < limite; indice++)
+            {
+                limitados.ImportRow(ordenados.Rows[indice]);
+            }
+
+            return limitados;
         }
 
         /// <summary>
@@ -166,22 +224,15 @@ namespace Sistema_Agricola.BLL
             dtAlertas.Columns.Add("Fecha", typeof(DateTime));
             dtAlertas.Columns.Add("Prioridad", typeof(string));
 
-            try
+            DataTable alertas = BLL_Alertas.ObtenerAlertasPendientes();
+            foreach (DataRow row in alertas.Rows)
             {
-                DataTable alertas = BLL_Alertas.ObtenerAlertasPendientes();
-                foreach (DataRow row in alertas.Rows)
-                {
-                    dtAlertas.Rows.Add(
-                        Convert.ToInt32(row["ID_Alerta"]),
-                        row["Tipo_Alerta"].ToString(),
-                        row["Titulo"].ToString(),
-                        Convert.ToDateTime(row["Fecha_Programada"]),
-                        row["Prioridad"].ToString());
-                }
-            }
-            catch
-            {
-                // Si la base no esta disponible, el dashboard queda sin alertas falsas.
+                dtAlertas.Rows.Add(
+                    Convert.ToInt32(row["ID_Alerta"]),
+                    row["Tipo_Alerta"].ToString(),
+                    row["Titulo"].ToString(),
+                    Convert.ToDateTime(row["Fecha_Programada"]),
+                    row["Prioridad"].ToString());
             }
 
             return dtAlertas;

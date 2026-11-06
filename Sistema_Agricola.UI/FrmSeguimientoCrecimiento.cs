@@ -94,7 +94,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al cargar los cultivos: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "cargar los cultivos para seguimiento");
             }
         }
 
@@ -211,7 +211,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al actualizar el gráfico: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "actualizar el gráfico de crecimiento");
             }
         }
 
@@ -261,7 +261,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al comparar cultivos: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "comparar el crecimiento de los cultivos");
             }
         }
 
@@ -320,7 +320,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al predecir crecimiento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "calcular la proyección de crecimiento");
             }
         }
 
@@ -408,7 +408,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al cargar los datos de seguimiento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "cargar los datos de seguimiento");
             }
         }
 
@@ -468,7 +468,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al guardar el seguimiento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "guardar el seguimiento");
             }
         }
 
@@ -501,7 +501,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al actualizar el seguimiento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "actualizar el seguimiento");
             }
         }
 
@@ -532,7 +532,7 @@ namespace Sistema_Agricola.UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error al eliminar el seguimiento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ManejadorErroresUI.Mostrar(this, ex, "eliminar el seguimiento");
                 }
             }
         }
@@ -569,7 +569,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al seleccionar el cultivo: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "seleccionar el cultivo para seguimiento");
                 idCultivoSeleccionado = -1;
             }
         }
@@ -596,7 +596,7 @@ namespace Sistema_Agricola.UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error al cargar los datos del registro: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ManejadorErroresUI.Mostrar(this, ex, "cargar el registro de seguimiento");
                 }
             }
         }
@@ -667,8 +667,7 @@ namespace Sistema_Agricola.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al finalizar el cultivo: " + ex.Message,
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ManejadorErroresUI.Mostrar(this, ex, "finalizar el cultivo");
             }
         }
 

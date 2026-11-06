@@ -87,14 +87,7 @@ namespace Sistema_Agricola.UI
         /// </summary>
         public static DataTable ObtenerAlertasPendientes()
         {
-            try
-            {
-                return BLL_Alertas.ObtenerAlertasPendientes();
-            }
-            catch
-            {
-                return new DataTable();
-            }
+            return BLL_Alertas.ObtenerAlertasPendientes();
         }
 
         /// <summary>

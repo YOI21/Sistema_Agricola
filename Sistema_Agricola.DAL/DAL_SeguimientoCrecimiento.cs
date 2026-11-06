@@ -41,9 +41,9 @@ namespace Sistema_Agricola.DAL
                     Mensaje = "Ha ocurrido un problema al guardar los datos del seguimiento";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Mensaje = ex.Message;
+                throw;
             }
             finally
             {
@@ -106,9 +106,9 @@ namespace Sistema_Agricola.DAL
                     Mensaje = "Ha ocurrido un problema al actualizar los datos del seguimiento";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Mensaje = ex.Message;
+                throw;
             }
             finally
             {
@@ -137,9 +137,9 @@ namespace Sistema_Agricola.DAL
                     Mensaje = "Ha ocurrido un problema al eliminar el seguimiento";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Mensaje = ex.Message;
+                throw;
             }
             finally
             {

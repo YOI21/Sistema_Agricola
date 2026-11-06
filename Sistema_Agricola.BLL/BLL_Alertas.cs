@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Net.Mail;
+using Sistema_Agricola.Common;
 using Sistema_Agricola.DAL;
 using Sistema_Agricola.Entities;
 
@@ -124,20 +125,15 @@ namespace Sistema_Agricola.BLL
         // Método para obtener alertas próximas
         public static DataTable ObtenerAlertasProximas()
         {
-            // Este método debería devolver las alertas próximas
-            // Si este es el método que funcionaba anteriormente, no debería haber cambios aquí
+            return ObtenerAlertasProximas(
+                () => new DAL_Alertas().Obtener_Alertas_Proximas());
+        }
 
-            try
-            {
-                DAL_Alertas dal = new DAL_Alertas();
-                return dal.Obtener_Alertas_Proximas();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error en BLL_Alertas.ObtenerAlertasProximas: " + ex.Message);
-                // Si ocurre un error, devuelve una tabla vacía en lugar de null
-                return new DataTable();
-            }
+        internal static DataTable ObtenerAlertasProximas(
+            Func<DataTable> cargarAlertas)
+        {
+            ArgumentNullException.ThrowIfNull(cargarAlertas);
+            return cargarAlertas();
         }
 
         // Método para marcar una alerta como notificada
@@ -271,9 +267,10 @@ namespace Sistema_Agricola.BLL
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error en GenerarAlertasAutomaticas: " + ex.Message);
-                Console.WriteLine("StackTrace: " + ex.StackTrace);
-                throw; // Re-lanzar la excepción para que pueda ser capturada por la interfaz
+                RegistroErrores.Registrar(
+                    ex,
+                    $"BLL_Alertas.GenerarAlertasAutomaticas; Cultivo={idCultivo}");
+                throw;
             }
         }
 
@@ -491,12 +488,18 @@ namespace Sistema_Agricola.BLL
             }
             catch (InvalidOperationException ex)
             {
-                resultado = ex.Message;
+                resultado = "No se pudo enviar la alerta. " +
+                    RegistroErrores.ObtenerReferencia(
+                        ex,
+                        "BLL_Alertas.EnviarNotificacionGmail.Configuracion");
                 return false;
             }
             catch (Exception ex)
             {
-                resultado = "Error al enviar la alerta por Gmail: " + ex.Message;
+                resultado = "No se pudo enviar la alerta por Gmail. " +
+                    RegistroErrores.ObtenerReferencia(
+                        ex,
+                        "BLL_Alertas.EnviarNotificacionGmail");
                 return false;
             }
         }

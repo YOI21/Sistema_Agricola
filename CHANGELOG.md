@@ -1,5 +1,12 @@
 # Registro de cambios
 
+## Próxima versión
+
+- El dashboard reúne los seguimientos recientes de todos los cultivos sin depender del ID 1.
+- Los fallos al consultar alertas ya no se presentan como listas vacías.
+- Alertas y seguimiento registran el detalle técnico y muestran solamente un código de seguimiento al usuario.
+- Se añadieron pruebas para el agregado global del dashboard, la propagación de alertas y los mensajes seguros.
+
 ## 1.1.0 - 2026-11-06
 
 - Se consolidó el esquema SQL completo en la versión 12.
