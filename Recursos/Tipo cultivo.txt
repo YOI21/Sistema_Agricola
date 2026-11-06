@@ -1,0 +1,19 @@
+CULTIVOS DE CEREALES
+CULTIVOS DE LEGUMINOSAS
+CULTIVOS DE TUBERCULOS
+CULTIVOS DE RAICES
+CULTIVOS DE FRUTAS
+CULTIVOS DE HORTALIZAS
+
+
+Factores que afectan el cultivo 
+Clima, como la temperatura, la humedad y la iluminación
+Suelo, como la localización, las pendientes y los elementos nutritivos
+Planta, como los genéticos, la fecha de siembra y la densidad de siembra
+
+
+
+Perenne
+Anual o Ciclico
+Bienal
+Temporal

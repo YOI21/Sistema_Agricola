@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sistema_Agricola.BLL\Sistema_Agricola.BLL.csproj" />
+    <ProjectReference Include="..\Sistema_Agricola.DAL\Sistema_Agricola.DAL.csproj" />
+    <ProjectReference Include="..\Sistema_Agricola.Entities\Sistema_Agricola.Entities.csproj" />
+    <ProjectReference Include="..\Sistema_Agricola.Pr\Sistema_Agricola.Pr.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DBSistema_Agricola\Migraciones\003_Acceso_Usuarios.sql"
+          Link="Sql\003_Acceso_Usuarios.sql"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\DBSistema_Agricola\Migraciones\007_Resultados_Autorizacion_Modulos_Agricolas.sql"
+          Link="Sql\007_Resultados_Autorizacion_Modulos_Agricolas.sql"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\DBSistema_Agricola\Migraciones\008_Endurecer_Autenticacion_Y_Permisos.sql"
+          Link="Sql\008_Endurecer_Autenticacion_Y_Permisos.sql"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\DBSistema_Agricola\Migraciones\009_Transacciones_Operativas_Atomicas.sql"
+          Link="Sql\009_Transacciones_Operativas_Atomicas.sql"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\DBSistema_Agricola\Migraciones\011_Produccion_Integracion_Financiera.sql"
+          Link="Sql\011_Produccion_Integracion_Financiera.sql"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\DBSistema_Agricola\Script_Completo_Sistema_Agricola.sql"
+          Link="Sql\Script_Completo_Sistema_Agricola.sql"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

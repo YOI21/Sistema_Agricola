@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.18.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sistema_Agricola.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sistema_Agricola.Common\Sistema_Agricola.Common.csproj" />
+    <ProjectReference Include="..\Sistema_Agricola.DAL\Sistema_Agricola.DAL.csproj" />
+    <ProjectReference Include="..\Sistema_Agricola.Entities\Sistema_Agricola.Entities.csproj" />
+    <ProjectReference Include="..\Sistema_Agricola.Pr\Sistema_Agricola.Pr.csproj" />
+  </ItemGroup>
+
+</Project>

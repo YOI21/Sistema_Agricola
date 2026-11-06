@@ -1,0 +1,55 @@
+name: Compilacion y pruebas
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Obtener codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Verificar estructura de entrega
+        shell: pwsh
+        run: .\scripts\Verificar_Entrega_Academica.ps1
+
+      - name: Restaurar dependencias
+        run: dotnet restore .\Sistema_Agricola.sln
+
+      - name: Compilar
+        run: dotnet build .\Sistema_Agricola.sln --configuration Release --no-restore
+
+      - name: Ejecutar pruebas automatizadas
+        run: >-
+          dotnet test .\Sistema_Agricola.sln
+          --configuration Release
+          --no-build
+          --filter "Categoria!=Integracion&Categoria!=AdministracionBD&Categoria!=Restauracion"
+          --logger "trx;LogFileName=pruebas.trx"
+          --collect "XPlat Code Coverage"
+          --results-directory .\TestResults\CI
+
+      - name: Publicar evidencias de pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidencias-pruebas-${{ github.run_number }}
+          path: TestResults/CI
+          if-no-files-found: warn
+          retention-days: 30

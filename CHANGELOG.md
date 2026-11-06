@@ -1,0 +1,19 @@
+# Registro de cambios
+
+## 1.1.0 - 2026-11-06
+
+- Se consolidó el esquema SQL completo en la versión 12.
+- Se endurecieron autenticación, autorización, auditoría y mínimo privilegio SQL.
+- Se integraron siembras, cosechas, inventario, producción y finanzas mediante transacciones.
+- Se separaron reglas agrícolas de la interfaz y se documentaron sus fuentes.
+- Se reorganizaron formularios grandes y se añadieron pruebas visuales a 125 % y 150 %.
+- Se amplió la suite automatizada con autorización, contratos SQL, reportes, UI y restauración.
+- Se eliminó código y formularios obsoletos.
+- Se preparó la entrega académica con Git, CI, matriz de requisitos, casos de uso y evidencias.
+
+### Pendiente
+
+- Instalador oficial.
+- Manual técnico.
+- Manual de usuario.
+- Incremento progresivo de cobertura automatizada.

@@ -1,0 +1,43 @@
+# Visual Studio y .NET
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Resultados y cobertura
+TestResults/
+**/TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage.cobertura.xml
+
+# Publicaciones y paquetes generados
+artifacts/
+publish/
+Publish/
+Publicacion_*/
+*.zip
+*.rar
+*.7z
+
+# Base de datos y secretos locales
+*.bak
+*.mdf
+*.ldf
+*.dat
+configuracion_sistema.json
+conexion_bd.dat
+appsettings.Local.json
+*.secrets.json
+
+# Archivos del sistema y temporales
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+~$*
+Microsoft.Common.CurrentVersion
