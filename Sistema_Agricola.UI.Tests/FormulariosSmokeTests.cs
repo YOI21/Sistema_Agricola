@@ -3,8 +3,17 @@ using Sistema_Agricola.UI;
 
 namespace Sistema_Agricola.UI.Tests;
 
+[CollectionDefinition("Pruebas visuales", DisableParallelization = true)]
+public sealed class PruebasVisualesCollection
+{
+}
+
+[Collection("Pruebas visuales")]
 public sealed class FormulariosSmokeTests
 {
+    private static readonly TimeSpan TiempoConstruccion = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan TiempoRenderizado = TimeSpan.FromSeconds(90);
+
     [Fact]
     public void Siembra_ConstruyeInterfaz() =>
         VerificarEnSta(() => new FrmSiembra());
@@ -51,7 +60,7 @@ public sealed class FormulariosSmokeTests
             VerificarEscalado(() => new FrmSiembra(true), escala);
             VerificarEscalado(() => new FrmDashboard(true), escala);
             VerificarEscalado(() => new FrmReporteInsumos(true), escala);
-        });
+        }, TiempoRenderizado);
     }
 
     private static void VerificarEnSta(Func<Form> crearFormulario)
@@ -63,7 +72,9 @@ public sealed class FormulariosSmokeTests
         });
     }
 
-    private static void EjecutarEnSta(Action accion)
+    private static void EjecutarEnSta(
+        Action accion,
+        TimeSpan? tiempoMaximo = null)
     {
         Exception? error = null;
         using ManualResetEventSlim terminado = new(false);
@@ -84,11 +95,13 @@ public sealed class FormulariosSmokeTests
             }
         });
         hilo.SetApartmentState(ApartmentState.STA);
+        hilo.IsBackground = true;
         hilo.Start();
 
+        TimeSpan limite = tiempoMaximo ?? TiempoConstruccion;
         Assert.True(
-            terminado.Wait(TimeSpan.FromSeconds(20)),
-            "El formulario no terminó de construirse en 20 segundos.");
+            terminado.Wait(limite),
+            $"La prueba visual no terminó en {limite.TotalSeconds:N0} segundos.");
         hilo.Join();
 
         if (error is not null)

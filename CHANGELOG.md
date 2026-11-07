@@ -6,6 +6,7 @@
 - Los fallos al consultar alertas ya no se presentan como listas vacías.
 - Alertas y seguimiento registran el detalle técnico y muestran solamente un código de seguimiento al usuario.
 - Se añadieron pruebas para el agregado global del dashboard, la propagación de alertas y los mensajes seguros.
+- Las pruebas visuales pesadas se ejecutan en serie con un límite adecuado para los agentes de GitHub Actions.
 
 ## 1.1.0 - 2026-11-06
 
