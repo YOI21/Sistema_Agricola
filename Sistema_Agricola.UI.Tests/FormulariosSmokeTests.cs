@@ -51,6 +51,7 @@ public sealed class FormulariosSmokeTests
         VerificarEnSta(() => new FrmReporteCrecimiento());
 
     [Theory]
+    [Trait("Categoria", "Visual")]
     [InlineData(1.25F)]
     [InlineData(1.50F)]
     public void FormulariosGrandes_RenderizanEn1366x768ConEscalado(float escala)

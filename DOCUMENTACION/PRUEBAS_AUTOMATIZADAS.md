@@ -3,9 +3,11 @@
 La solucion separa las pruebas en cuatro niveles:
 
 1. Unitarias y de contratos: no requieren SQL Server.
-2. Interfaz: construyen los formularios WinForms en un hilo STA sin abrir ventanas.
+2. Interfaz estructural: construye formularios WinForms en un hilo STA.
 3. Integracion: usan la conexion restringida de la aplicacion y revierten sus datos de prueba.
 4. Administracion y restauracion: requieren credenciales administrativas explicitas.
+5. Visuales locales: muestran formularios fuera de pantalla, aplican escalado y
+   validan capturas mediante `DrawToBitmap` en una sesion de escritorio Windows.
 
 Una prueba que no tenga su configuracion externa aparece como **omitida** con la causa.
 Nunca debe terminar como aprobada sin ejecutar sus comprobaciones.
@@ -19,6 +21,31 @@ dotnet restore .\Sistema_Agricola.sln
 dotnet build .\Sistema_Agricola.sln --configuration Debug --no-restore
 dotnet test .\Sistema_Agricola.sln --configuration Debug --no-build
 ```
+
+## Pruebas aptas para integracion continua
+
+GitHub Hosted Runner no proporciona una sesion de escritorio interactiva
+confiable para `Form.Show()` y `DrawToBitmap`. Por eso la integracion continua
+ejecuta las pruebas deterministas y excluye solo la categoria `Visual`:
+
+```powershell
+dotnet test .\Sistema_Agricola.sln --configuration Release --no-build `
+  --filter "Categoria!=Integracion&Categoria!=AdministracionBD&Categoria!=Restauracion&Categoria!=Visual"
+```
+
+## Escalado y renderizado visual local
+
+Estas pruebas deben ejecutarse en una sesion Windows iniciada, como evidencia
+separada para 1366x768 con escalado de 125 % y 150 %:
+
+```powershell
+dotnet test .\Sistema_Agricola.UI.Tests\Sistema_Agricola.UI.Tests.csproj `
+  --configuration Release `
+  --filter "Categoria=Visual"
+```
+
+Excluirlas del runner hospedado no las marca como aprobadas ni omitidas: se
+ejecutan y documentan localmente porque dependen de un escritorio real.
 
 ## Base de datos restringida
 
