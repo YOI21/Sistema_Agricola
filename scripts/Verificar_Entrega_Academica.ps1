@@ -15,7 +15,17 @@ if (-not (Test-Path -LiteralPath $hashFile -PathType Leaf)) {
 }
 
 $expectedHash = (Get-Content -LiteralPath $hashFile -Raw).Trim().Split(' ')[0]
-$actualHash = (Get-FileHash -LiteralPath $officialSql -Algorithm SHA256).Hash
+$sqlText = [IO.File]::ReadAllText($officialSql)
+$canonicalSql = $sqlText.Replace("`r`n", "`n").Replace("`r", "`n")
+$canonicalBytes = [Text.UTF8Encoding]::new($false).GetBytes($canonicalSql)
+$sha256 = [Security.Cryptography.SHA256]::Create()
+try {
+    $actualHash = ([BitConverter]::ToString(
+        $sha256.ComputeHash($canonicalBytes))).Replace('-', '')
+}
+finally {
+    $sha256.Dispose()
+}
 if (-not [string]::Equals($expectedHash, $actualHash, [StringComparison]::OrdinalIgnoreCase)) {
     throw "La huella del script SQL oficial no coincide. Actualice el script y su SHA-256 juntos."
 }

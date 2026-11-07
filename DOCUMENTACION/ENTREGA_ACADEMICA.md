@@ -30,6 +30,10 @@ El único SQL autorizado para crear una base nueva es
 instaladores alternativos: documentan y aplican cambios incrementales sobre una
 base ya existente.
 
+La huella SHA-256 se calcula sobre el contenido SQL canónico en UTF-8 y con
+saltos de línea LF. De esta forma produce el mismo resultado en Windows y en
+GitHub Actions sin modificar las instrucciones SQL.
+
 ## Elementos aplazados
 
 Por decisión del propietario del proyecto, esta versión no incluye todavía:
